@@ -1,7 +1,7 @@
 import type { Product } from "./types";
 import { products as fallbackProducts } from "./products";
 
-const WOOCOMMERCE_URL = process.env.WOOCOMMERCE_URL || "https://pettzier.com.au";
+const WOOCOMMERCE_URL = process.env.WOOCOMMERCE_URL || "https://petzier934-bhctf.wpcomstaging.com";
 const WOOCOMMERCE_KEY = process.env.WOOCOMMERCE_KEY || "";
 const WOOCOMMERCE_SECRET = process.env.WOOCOMMERCE_SECRET || "";
 
