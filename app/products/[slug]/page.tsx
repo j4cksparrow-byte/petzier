@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { products, getProduct } from "@/lib/products";
+import { fetchWooProducts, fetchWooProductBySlug } from "@/lib/woocommerce";
 import PDPHero from "@/components/pdp/PDPHero";
 import ProblemSolution from "@/components/pdp/ProblemSolution";
 import MaterialBreakdown from "@/components/pdp/MaterialBreakdown";
@@ -15,12 +15,13 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+  const wooProducts = await fetchWooProducts();
+  return wooProducts.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await fetchWooProductBySlug(slug);
   if (!product) return {};
   return {
     title: `${product.name} — Petzier`,
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await fetchWooProductBySlug(slug);
   if (!product) notFound();
 
   return (

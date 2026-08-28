@@ -25,6 +25,71 @@ export interface WooProduct {
   stock_status: string;
 }
 
+function stripHtml(html: string): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').trim();
+}
+
+function mapWooToProduct(woo: WooProduct): Product {
+  const matchedFallback = fallbackProducts.find((p) => p.slug === woo.slug);
+  const price = parseFloat(woo.price) || matchedFallback?.price || 49;
+  const originalPrice = woo.regular_price && parseFloat(woo.regular_price) > price
+    ? parseFloat(woo.regular_price)
+    : matchedFallback?.originalPrice;
+
+  const imageSrc = woo.images && woo.images.length > 0 ? woo.images[0].src : (matchedFallback?.image || "/gps-collar.jpg");
+
+  // Map WooCommerce attributes to specs table
+  const wooSpecs = woo.attributes && woo.attributes.length > 0
+    ? woo.attributes.map((attr) => ({
+        label: attr.name,
+        value: Array.isArray(attr.options) ? attr.options.join(", ") : String(attr.options),
+      }))
+    : null;
+
+  return {
+    slug: woo.slug,
+    name: woo.name,
+    tagline: stripHtml(woo.short_description) || matchedFallback?.tagline || "Premium pet essential",
+    description: stripHtml(woo.description) || matchedFallback?.description || stripHtml(woo.short_description) || "",
+    price: price,
+    originalPrice: originalPrice,
+    image: imageSrc,
+    heroImage: imageSrc,
+    badge: matchedFallback?.badge || (woo.sale_price ? "Sale" : undefined),
+    dispatchNote: matchedFallback?.dispatchNote || "DISPATCHED IN 1–2 DAYS",
+    problems: matchedFallback?.problems || [
+      { title: "Vet-Approved Quality", description: "Inspected and quality-tested before dispatch." },
+      { title: "Fast AU Dispatch", description: "Dispatched from Melbourne warehouse within 24-48 hours." },
+      { title: "30-Day Risk-Free Returns", description: "Try it at home with a 30-day money-back guarantee." },
+    ],
+    materials: matchedFallback?.materials || [
+      { name: "Build", description: "Food-safe, ultra-durable pet friendly materials" },
+      { name: "Warranty", description: "12-Month full manufacturer warranty" },
+    ],
+    boxItems: matchedFallback?.boxItems || [
+      { name: woo.name, qty: "×1" },
+      { name: "User Guide & Care Instructions", qty: "×1" },
+    ],
+    specs: wooSpecs || matchedFallback?.specs || [
+      { label: "Dispatch", value: "Melbourne Warehouse (1–2 Days)" },
+      { label: "Warranty", value: "12 Months" },
+      { label: "Stock Status", value: woo.stock_status === "instock" ? "In Stock" : "Limited Stock" },
+    ],
+    reviews: matchedFallback?.reviews || [
+      {
+        name: "Verified Customer",
+        location: "Australia",
+        rating: 5,
+        text: "Purchased this through Petzier — arrived fast in 2 days and quality is fantastic!",
+        petName: "Buddy",
+      },
+    ],
+    editorialHeadline: matchedFallback?.editorialHeadline || woo.name,
+    editorialBody: matchedFallback?.editorialBody || stripHtml(woo.description) || stripHtml(woo.short_description) || "",
+  };
+}
+
 export async function fetchWooProducts(): Promise<Product[]> {
   if (!WOOCOMMERCE_KEY || !WOOCOMMERCE_SECRET) {
     return fallbackProducts;
@@ -32,7 +97,7 @@ export async function fetchWooProducts(): Promise<Product[]> {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second max timeout
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
 
     const res = await fetch(`${WOOCOMMERCE_URL}/wp-json/wc/v3/products?per_page=50`, {
       headers: {
@@ -40,7 +105,7 @@ export async function fetchWooProducts(): Promise<Product[]> {
         "Content-Type": "application/json",
       },
       signal: controller.signal,
-      next: { revalidate: 300 }, // Cache in background for 5 minutes
+      next: { revalidate: 60 },
     });
     clearTimeout(timeoutId);
 
@@ -52,58 +117,41 @@ export async function fetchWooProducts(): Promise<Product[]> {
     const data: WooProduct[] = await res.json();
 
     if (!Array.isArray(data) || data.length === 0) {
-      // If WooCommerce has no products published yet, use featured fallback products
       return fallbackProducts;
     }
 
-    // Map WooCommerce products to Petzier frontend Product structure
-    return data.map((woo) => {
-      // Find matching fallback product to retain rich editorial metadata if available
-      const matchedFallback = fallbackProducts.find((p) => p.slug === woo.slug);
-
-      const price = parseFloat(woo.price) || matchedFallback?.price || 49;
-      const originalPrice = woo.regular_price && parseFloat(woo.regular_price) > price
-        ? parseFloat(woo.regular_price)
-        : matchedFallback?.originalPrice;
-
-      return {
-        slug: woo.slug,
-        name: woo.name,
-        tagline: woo.short_description ? woo.short_description.replace(/<[^>]*>/g, "") : matchedFallback?.tagline || "Premium pet essential",
-        description: woo.description ? woo.description.replace(/<[^>]*>/g, "") : matchedFallback?.description || "",
-        price: price,
-        originalPrice: originalPrice,
-        image: woo.images[0]?.src || matchedFallback?.image || "/gps-collar.jpg",
-        heroImage: woo.images[0]?.src || matchedFallback?.heroImage || "/hero.jpg",
-        badge: matchedFallback?.badge || (woo.sale_price ? "Sale" : undefined),
-        dispatchNote: matchedFallback?.dispatchNote || "DISPATCHED IN 1–2 DAYS",
-        problems: matchedFallback?.problems || [
-          { title: "Quality Guarantee", description: "Every unit is inspected before dispatch." },
-          { title: "Fast AU Delivery", description: "Ships direct from Melbourne warehouse." },
-          { title: "30-Day Returns", description: "Risk-free evaluation period." },
-        ],
-        materials: matchedFallback?.materials || [
-          { name: "Build", description: "Food-safe, pet-friendly durable materials" },
-          { name: "Warranty", description: "12-Month manufacturer guarantee" },
-        ],
-        boxItems: matchedFallback?.boxItems || [
-          { name: woo.name, qty: "×1" },
-          { name: "User Guide & Warranty", qty: "×1" },
-        ],
-        specs: matchedFallback?.specs || [
-          { label: "Origin", value: "Melbourne Warehouse" },
-          { label: "Dispatch", value: "1–2 Business Days" },
-          { label: "Warranty", value: "12 Months" },
-        ],
-        reviews: matchedFallback?.reviews || [],
-        editorialHeadline: matchedFallback?.editorialHeadline || woo.name,
-        editorialBody: matchedFallback?.editorialBody || woo.short_description || "",
-      };
-    });
+    return data.map((woo) => mapWooToProduct(woo));
   } catch (error) {
     console.error("Failed to fetch products from WooCommerce:", error);
     return fallbackProducts;
   }
+}
+
+export async function fetchWooProductBySlug(slug: string): Promise<Product | undefined> {
+  // First try fetching live product from WooCommerce by slug
+  if (WOOCOMMERCE_KEY && WOOCOMMERCE_SECRET) {
+    try {
+      const res = await fetch(`${WOOCOMMERCE_URL}/wp-json/wc/v3/products?slug=${encodeURIComponent(slug)}`, {
+        headers: {
+          Authorization: getAuthHeader(),
+          "Content-Type": "application/json",
+        },
+        next: { revalidate: 60 },
+      });
+
+      if (res.ok) {
+        const data: WooProduct[] = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          return mapWooToProduct(data[0]);
+        }
+      }
+    } catch (err) {
+      console.error(`Failed to fetch WooCommerce product slug ${slug}:`, err);
+    }
+  }
+
+  // Fallback to static product list if WooCommerce product is not found or key is missing
+  return fallbackProducts.find((p) => p.slug === slug);
 }
 
 export interface CreateOrderPayload {
