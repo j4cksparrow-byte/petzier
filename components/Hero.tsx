@@ -25,7 +25,7 @@ export default function Hero() {
             <div className="inline-flex items-center gap-2 border border-[#B5A48C]/60 px-3 py-1.5 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-[#4A5842]" />
               <span className="font-mono text-[0.65rem] tracking-[0.15em] text-[#EDE8DE]/90 uppercase">
-                Dispatched from Melbourne — 1–2 days
+                Dispatched from Melbourne
               </span>
             </div>
 
