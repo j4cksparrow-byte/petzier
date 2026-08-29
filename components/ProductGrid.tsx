@@ -4,31 +4,27 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import type { Product } from "@/lib/types";
+import { useCart } from "@/lib/cart-context";
 
 function ProductCard({ product }: { product: Product }) {
-  const [loading, setLoading] = useState(false);
+  const { addItem, openCart } = useCart();
+  const [added, setAdded] = useState(false);
 
-  const handleCheckout = async (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: product.slug, quantity: 1 }),
-      });
-      const data = await res.json();
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        alert(data.error || "Failed to initiate checkout");
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error connecting to checkout server.");
-      setLoading(false);
-    }
+    addItem(
+      {
+        wooId: product.wooId,
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+      },
+      1
+    );
+    setAdded(true);
+    openCart();
+    setTimeout(() => setAdded(false), 1500);
   };
 
   return (
@@ -84,12 +80,11 @@ function ProductCard({ product }: { product: Product }) {
             )}
           </div>
           <button
-            onClick={handleCheckout}
-            disabled={loading}
+            onClick={handleAddToCart}
             id={`product-card-cta-${product.slug}`}
-            className="font-mono text-[0.7rem] tracking-[0.1em] uppercase bg-[#A8503E] text-[#EDE8DE] px-4 py-2.5 hover:bg-[#22211E] transition-colors duration-300 font-semibold disabled:opacity-50"
+            className="font-mono text-[0.7rem] tracking-[0.1em] uppercase bg-[#A8503E] text-[#EDE8DE] px-4 py-2.5 hover:bg-[#22211E] transition-colors duration-300 font-semibold min-w-[7.5rem] text-center"
           >
-            {loading ? "..." : "Buy Now"}
+            {added ? "Added ✓" : "Add to Cart"}
           </button>
         </div>
       </div>

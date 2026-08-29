@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ShoppingCart, Menu, X } from "lucide-react";
+import { useCart } from "@/lib/cart-context";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { totalItems, openCart } = useCart();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40);
@@ -52,22 +54,28 @@ export default function Nav() {
           >
             Reviews
           </Link>
-          <Link
-            href="#"
+          <button
+            onClick={openCart}
             className="font-mono text-xs tracking-stamp bg-[#4A5842] text-[#EDE8DE] px-4 py-2 hover:bg-[#22211E] transition-colors"
-            aria-label="Cart"
+            aria-label="Open cart"
           >
-            CART (0)
-          </Link>
+            CART ({totalItems})
+          </button>
         </nav>
 
         {/* Mobile controls */}
         <div className="flex md:hidden items-center gap-4">
           <button
-            aria-label="Shopping cart"
-            className="text-[#22211E] hover:text-[#4A5842] transition-colors"
+            onClick={openCart}
+            aria-label="Open cart"
+            className="relative text-[#22211E] hover:text-[#4A5842] transition-colors"
           >
             <ShoppingCart size={20} />
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-[#A8503E] text-[#EDE8DE] text-[10px] font-mono font-semibold rounded-full w-4 h-4 flex items-center justify-center">
+                {totalItems > 9 ? "9+" : totalItems}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -96,13 +104,15 @@ export default function Nav() {
               {label}
             </Link>
           ))}
-          <Link
-            href="#"
-            onClick={() => setMenuOpen(false)}
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              openCart();
+            }}
             className="font-mono text-xs tracking-stamp bg-[#4A5842] text-[#EDE8DE] px-4 py-3 text-center hover:bg-[#22211E] transition-colors"
           >
-            CART (0)
-          </Link>
+            CART ({totalItems})
+          </button>
         </div>
       )}
     </header>

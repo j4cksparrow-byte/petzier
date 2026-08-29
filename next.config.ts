@@ -4,7 +4,9 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
-      // WordPress.com Staging
+      // WooCommerce backend (petzier934-bhctf.wpcomstaging.com) — this is the
+      // permanent production store, not a temporary staging site. It's what
+      // WOOCOMMERCE_URL should point to in every environment.
       {
         protocol: "https",
         hostname: "petzier934-bhctf.wpcomstaging.com",
@@ -26,15 +28,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i2.wp.com",
       },
-      // Live domain (once migrated off staging)
+      // Storefront domain
       {
         protocol: "https",
         hostname: "pettzier.com.au",
-      },
-      // Hostinger WordPress hosting
-      {
-        protocol: "https",
-        hostname: "shop.pettzier.com.au",
       },
       // iDropship product images (CDN)
       {

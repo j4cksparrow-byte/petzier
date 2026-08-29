@@ -1,33 +1,35 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
+import { useCart } from "@/lib/cart-context";
 
 export default function PDPHero({ product }: { product: Product }) {
-  const [loading, setLoading] = useState(false);
+  const { addItem, openCart } = useCart();
+  const router = useRouter();
+  const [added, setAdded] = useState(false);
 
-  const handleCheckout = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: product.slug, quantity: 1 }),
-      });
-      const data = await res.json();
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        alert(data.error || "Failed to initiate checkout");
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error connecting to checkout server.");
-      setLoading(false);
-    }
+  const cartItem = {
+    wooId: product.wooId,
+    slug: product.slug,
+    name: product.name,
+    price: product.price,
+    image: product.image,
+  };
+
+  const handleAddToCart = () => {
+    addItem(cartItem, 1);
+    setAdded(true);
+    openCart();
+    setTimeout(() => setAdded(false), 1500);
+  };
+
+  const handleBuyNow = () => {
+    addItem(cartItem, 1);
+    router.push("/checkout");
   };
   return (
     <section className="pt-16 min-h-screen grid grid-cols-1 lg:grid-cols-2" aria-label={`${product.name} hero`}>
@@ -104,19 +106,17 @@ export default function PDPHero({ product }: { product: Product }) {
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <button
             id={`pdp-add-to-cart-${product.slug}`}
-            onClick={handleCheckout}
-            disabled={loading}
-            className="flex-1 bg-[#4A5842] text-[#EDE8DE] py-4 px-8 text-sm font-semibold hover:bg-[#22211E] transition-colors duration-300 disabled:opacity-50"
+            onClick={handleAddToCart}
+            className="flex-1 bg-[#4A5842] text-[#EDE8DE] py-4 px-8 text-sm font-semibold hover:bg-[#22211E] transition-colors duration-300"
           >
-            {loading ? "Connecting to Checkout..." : "Add to Cart"}
+            {added ? "Added to Cart ✓" : "Add to Cart"}
           </button>
           <button
             id={`pdp-buy-now-${product.slug}`}
-            onClick={handleCheckout}
-            disabled={loading}
-            className="flex-1 bg-[#A8503E] text-[#EDE8DE] py-4 px-8 text-sm font-semibold hover:bg-[#22211E] transition-colors duration-300 disabled:opacity-50"
+            onClick={handleBuyNow}
+            className="flex-1 bg-[#A8503E] text-[#EDE8DE] py-4 px-8 text-sm font-semibold hover:bg-[#22211E] transition-colors duration-300"
           >
-            {loading ? "Connecting..." : "Buy Now"}
+            Buy Now
           </button>
         </div>
 

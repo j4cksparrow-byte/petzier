@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Public_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import CartDrawer from "@/components/CartDrawer";
+import { CartProvider } from "@/lib/cart-context";
 
 const publicSans = Public_Sans({
   subsets: ["latin"],
@@ -37,8 +39,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${publicSans.variable} ${ibmPlexMono.variable}`}>
       <body className="bg-stone text-ink antialiased">
-        <Nav />
-        <main>{children}</main>
+        <CartProvider>
+          <Nav />
+          <main>{children}</main>
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );

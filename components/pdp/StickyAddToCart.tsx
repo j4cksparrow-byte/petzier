@@ -1,16 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/lib/cart-context";
 
 interface StickyAddToCartProps {
   productName: string;
   price: number;
   slug: string;
+  image: string;
+  wooId?: number;
 }
 
-export default function StickyAddToCart({ productName, price, slug }: StickyAddToCartProps) {
+export default function StickyAddToCart({ productName, price, slug, image, wooId }: StickyAddToCartProps) {
   const [visible, setVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { addItem } = useCart();
+  const router = useRouter();
 
   useEffect(() => {
     const handler = () => {
@@ -20,26 +25,9 @@ export default function StickyAddToCart({ productName, price, slug }: StickyAddT
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  const handleCheckout = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, quantity: 1 }),
-      });
-      const data = await res.json();
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        alert(data.error || "Failed to initiate checkout");
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error connecting to checkout server.");
-      setLoading(false);
-    }
+  const handleBuyNow = () => {
+    addItem({ wooId, slug, name: productName, price, image }, 1);
+    router.push("/checkout");
   };
 
   return (
@@ -59,11 +47,10 @@ export default function StickyAddToCart({ productName, price, slug }: StickyAddT
         {/* CTA */}
         <button
           id={`sticky-cart-${slug}`}
-          onClick={handleCheckout}
-          disabled={loading}
-          className="bg-[#A8503E] text-[#EDE8DE] px-6 py-3 text-sm font-semibold hover:bg-[#EDE8DE] hover:text-[#22211E] transition-colors duration-300 whitespace-nowrap flex-shrink-0 disabled:opacity-50"
+          onClick={handleBuyNow}
+          className="bg-[#A8503E] text-[#EDE8DE] px-6 py-3 text-sm font-semibold hover:bg-[#EDE8DE] hover:text-[#22211E] transition-colors duration-300 whitespace-nowrap flex-shrink-0"
         >
-          {loading ? "Connecting..." : "Buy Now"}
+          Buy Now
         </button>
       </div>
     </div>

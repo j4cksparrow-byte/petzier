@@ -1,6 +1,10 @@
 import type { Product } from "./types";
 import { products as fallbackProducts } from "./products";
 
+// petzier934-bhctf.wpcomstaging.com is the permanent WooCommerce backend
+// (not a temporary staging site — shop.pettzier.com.au was never finished
+// and is no longer used). Set WOOCOMMERCE_URL in every environment
+// (including Vercel) to this value; the fallback below just mirrors it.
 const WOOCOMMERCE_URL = process.env.WOOCOMMERCE_URL || "https://petzier934-bhctf.wpcomstaging.com";
 const WOOCOMMERCE_KEY = process.env.WOOCOMMERCE_KEY || "";
 const WOOCOMMERCE_SECRET = process.env.WOOCOMMERCE_SECRET || "";
@@ -48,6 +52,7 @@ function mapWooToProduct(woo: WooProduct): Product {
     : null;
 
   return {
+    wooId: woo.id,
     slug: woo.slug,
     name: woo.name,
     tagline: stripHtml(woo.short_description) || matchedFallback?.tagline || "Premium pet essential",
@@ -131,13 +136,18 @@ export async function fetchWooProductBySlug(slug: string): Promise<Product | und
   // First try fetching live product from WooCommerce by slug
   if (WOOCOMMERCE_KEY && WOOCOMMERCE_SECRET) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+
       const res = await fetch(`${WOOCOMMERCE_URL}/wp-json/wc/v3/products?slug=${encodeURIComponent(slug)}`, {
         headers: {
           Authorization: getAuthHeader(),
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         next: { revalidate: 60 },
       });
+      clearTimeout(timeoutId);
 
       if (res.ok) {
         const data: WooProduct[] = await res.json();
@@ -155,7 +165,15 @@ export async function fetchWooProductBySlug(slug: string): Promise<Product | und
 }
 
 export interface CreateOrderPayload {
-  line_items: { product_id?: number; name?: string; quantity: number; price?: number }[];
+  line_items: {
+    product_id?: number;
+    name?: string;
+    quantity: number;
+    /** Not a real WooCommerce field — ignored by the API, kept only for backward compat. */
+    price?: number;
+    subtotal?: string;
+    total?: string;
+  }[];
   billing?: {
     first_name?: string;
     last_name?: string;
@@ -171,23 +189,39 @@ export interface CreateOrderPayload {
 
 export async function createWooOrder(payload: CreateOrderPayload) {
   if (!WOOCOMMERCE_KEY || !WOOCOMMERCE_SECRET) {
-    throw new Error("WooCommerce API keys are not configured in environment.");
+    throw new Error(
+      "WooCommerce API keys are not configured. Set WOOCOMMERCE_URL, WOOCOMMERCE_KEY and WOOCOMMERCE_SECRET in your environment."
+    );
   }
 
-  const res = await fetch(`${WOOCOMMERCE_URL}/wp-json/wc/v3/orders`, {
-    method: "POST",
-    headers: {
-      Authorization: getAuthHeader(),
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      status: "pending",
-      currency: "AUD",
-      line_items: payload.line_items,
-      billing: payload.billing || {},
-      shipping: payload.billing || {},
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  let res: Response;
+  try {
+    res = await fetch(`${WOOCOMMERCE_URL}/wp-json/wc/v3/orders`, {
+      method: "POST",
+      headers: {
+        Authorization: getAuthHeader(),
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        status: "pending",
+        currency: "AUD",
+        line_items: payload.line_items,
+        billing: payload.billing || {},
+        shipping: payload.billing || {},
+      }),
+    });
+  } catch (err) {
+    const reason = err instanceof Error && err.name === "AbortError" ? "timed out" : "could not connect";
+    throw new Error(
+      `Could not reach the WooCommerce store at ${WOOCOMMERCE_URL} (request ${reason}). Check that WOOCOMMERCE_URL points to a live, reachable WordPress site.`
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!res.ok) {
     const errorText = await res.text();

@@ -28,6 +28,8 @@ export interface BoxItem {
 }
 
 export interface Product {
+  /** WooCommerce product ID. Only set for products fetched live from WooCommerce. */
+  wooId?: number;
   slug: string;
   name: string;
   tagline: string;

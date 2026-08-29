@@ -47,6 +47,8 @@ export default async function ProductPage({ params }: Props) {
         productName={product.name}
         price={product.price}
         slug={product.slug}
+        image={product.image}
+        wooId={product.wooId}
       />
     </>
   );
