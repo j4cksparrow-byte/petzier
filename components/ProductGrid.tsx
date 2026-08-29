@@ -28,37 +28,37 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <article className="group reveal flex flex-col bg-[#EDE8DE]">
+    <article className="group reveal flex flex-col bg-[#FAF7F1] rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-500 ease-out">
       {/* Image */}
-      <Link href={`/products/${product.slug}`} className="relative overflow-hidden block aspect-[4/3]">
+      <Link href={`/products/${product.slug}`} className="relative overflow-hidden block aspect-[4/3] m-2 rounded-2xl">
         <Image
           src={product.image}
           alt={product.name}
           fill
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+          className="object-cover rounded-2xl transition-transform duration-700 ease-out group-hover:scale-[1.06]"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           loading="lazy"
         />
         {/* Badge */}
         {product.badge && (
-          <span className="absolute top-4 left-4 font-mono text-[0.6rem] tracking-[0.12em] uppercase bg-[#4A5842] text-[#EDE8DE] px-2.5 py-1.5">
+          <span className="absolute top-3 left-3 font-mono text-[0.6rem] tracking-[0.12em] uppercase rounded-full bg-[#22211E]/85 backdrop-blur-sm text-[#FAF7F1] px-3 py-1.5">
             {product.badge}
           </span>
         )}
       </Link>
 
       {/* Card body */}
-      <div className="pt-5 pb-6 flex flex-col flex-1">
+      <div className="px-5 pt-4 pb-6 flex flex-col flex-1">
         {/* Dispatch stamp */}
-        <div className="flex items-center gap-1.5 border border-[#B5A48C] inline-flex w-fit px-2 py-1 mb-4">
-          <span className="w-1 h-1 rounded-full bg-[#4A5842]" />
-          <span className="font-mono text-[0.58rem] tracking-[0.1em] uppercase text-[#22211E]/60">
+        <div className="flex items-center gap-1.5 w-fit mb-3">
+          <span className="w-1 h-1 rounded-full bg-[#B8863E]" />
+          <span className="font-mono text-[0.58rem] tracking-[0.1em] uppercase text-[#22211E]/50">
             {product.dispatchNote}
           </span>
         </div>
 
         {/* Name + tagline */}
-        <h3 className="text-lg font-bold tracking-tight text-[#22211E] leading-snug mb-1">
+        <h3 className="font-serif text-xl text-[#22211E] leading-snug mb-1.5">
           <Link href={`/products/${product.slug}`} className="hover:text-[#4A5842] transition-colors">
             {product.name}
           </Link>
@@ -68,7 +68,7 @@ function ProductCard({ product }: { product: Product }) {
         </p>
 
         {/* Price + CTA */}
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between gap-3">
           <div>
             <span className="font-mono text-xl font-semibold text-[#22211E]">
               ${product.price}
@@ -82,7 +82,7 @@ function ProductCard({ product }: { product: Product }) {
           <button
             onClick={handleAddToCart}
             id={`product-card-cta-${product.slug}`}
-            className="font-mono text-[0.7rem] tracking-[0.1em] uppercase bg-[#A8503E] text-[#EDE8DE] px-4 py-2.5 hover:bg-[#22211E] transition-colors duration-300 font-semibold min-w-[7.5rem] text-center"
+            className="font-mono text-[0.7rem] tracking-[0.1em] uppercase rounded-full bg-[#22211E] text-[#FAF7F1] px-5 py-3 hover:bg-[#4A5842] transition-colors duration-300 font-semibold min-w-[7.5rem] text-center"
           >
             {added ? "Added ✓" : "Add to Cart"}
           </button>
@@ -96,40 +96,65 @@ export default function ProductGrid({ products }: { products: Product[] }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const elements = Array.from(node.querySelectorAll<HTMLElement>(".reveal"));
+    if (elements.length === 0) return;
+
+    // Safety net: some mobile browsers (backgrounded tabs, in-app
+    // webviews, older Safari) can fail to fire IntersectionObserver
+    // callbacks reliably. Product cards must never stay permanently
+    // invisible because of a scroll animation — force them visible after
+    // a short delay no matter what.
+    const fallback = setTimeout(() => {
+      elements.forEach((el) => el.classList.add("visible"));
+    }, 1000);
+
+    if (typeof IntersectionObserver === "undefined") {
+      elements.forEach((el) => el.classList.add("visible"));
+      clearTimeout(fallback);
+      return;
+    }
+
+    // Observe each card individually (not the whole grid) — with dozens
+    // of products the grid can be many screens tall, and a single
+    // "10% of the grid is visible" threshold on the container could take
+    // several screens of scrolling to satisfy, making cards appear to
+    // never load on mobile.
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const elements = entry.target.querySelectorAll(".reveal");
-            elements.forEach((el, i) => {
-              setTimeout(() => {
-                el.classList.add("visible");
-              }, i * 80);
-            });
+            entry.target.classList.add("visible");
             observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: "0px 0px -10% 0px" }
     );
 
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallback);
+    };
+  }, [products]);
 
   return (
-    <section id="products" className="py-20 md:py-28" aria-label="Products">
+    <section id="products" className="py-20 md:py-28 bg-[#EDE8DE]" aria-label="Products">
       <div className="max-w-7xl mx-auto px-6">
         {/* Section header */}
-        <div className="flex items-end justify-between mb-12 border-b border-[#B5A48C] pb-6">
+        <div className="flex items-end justify-between mb-12 pb-6">
           <div>
-            <p className="font-mono text-[0.65rem] tracking-[0.15em] uppercase text-[#A8503E] mb-2">
-              ◈ The Collection
+            <p className="font-mono text-[0.65rem] tracking-[0.15em] uppercase text-[#B8863E] mb-3">
+              ✦ The Collection
             </p>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#22211E]">
+            <h2 className="font-serif text-4xl md:text-5xl text-[#22211E]">
               Five products.
               <br />
-              Zero compromises.
+              <span className="italic">Zero compromises.</span>
             </h2>
           </div>
           <p className="hidden md:block text-sm text-[#22211E]/50 max-w-[220px] text-right leading-relaxed">
@@ -138,7 +163,7 @@ export default function ProductGrid({ products }: { products: Product[] }) {
         </div>
 
         {/* Grid */}
-        <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+        <div ref={ref} className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {products.map((product) => (
             <ProductCard key={product.slug} product={product} />
           ))}
