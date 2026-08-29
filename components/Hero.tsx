@@ -7,7 +7,7 @@ export default function Hero() {
       {/* Full-bleed image */}
       <Image
         src="/hero.jpg"
-        alt="Golden retriever wearing a Petzier Smart GPS Collar in a sunlit garden"
+        alt="Golden retriever wearing the Petzier GPS Pet Collar"
         fill
         priority
         className="object-cover object-center"
@@ -25,7 +25,7 @@ export default function Hero() {
             <div className="inline-flex items-center gap-2 border border-[#B5A48C]/60 px-3 py-1.5 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-[#4A5842]" />
               <span className="font-mono text-[0.65rem] tracking-[0.15em] text-[#EDE8DE]/90 uppercase">
-                Dispatched from Melbourne
+                Dispatched from Melbourne — 1–2 days
               </span>
             </div>
 
