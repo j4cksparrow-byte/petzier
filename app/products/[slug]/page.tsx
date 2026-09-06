@@ -7,6 +7,7 @@ import WhatInBox from "@/components/pdp/WhatInBox";
 import SpecsTable from "@/components/pdp/SpecsTable";
 import PDPReviews from "@/components/pdp/PDPReviews";
 import StickyAddToCart from "@/components/pdp/StickyAddToCart";
+import PdpMotion from "@/components/pdp/PdpMotion";
 import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 
@@ -35,7 +36,13 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   return (
-    <>
+    <div
+      // Focus Not Obscured (WCAG 2.2): offset scroll targets so the fixed
+      // site nav and the mobile sticky buy bar can never fully cover a
+      // keyboard-focused element.
+      style={{ scrollPaddingTop: 96, scrollPaddingBottom: 96 }}
+    >
+      <PdpMotion />
       <PDPHero product={product} />
       <ProblemSolution problems={product.problems} />
       <MaterialBreakdown materials={product.materials} />
@@ -50,6 +57,6 @@ export default async function ProductPage({ params }: Props) {
         image={product.image}
         wooId={product.wooId}
       />
-    </>
+    </div>
   );
 }

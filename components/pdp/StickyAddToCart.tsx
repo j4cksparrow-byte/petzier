@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 
@@ -14,20 +14,27 @@ interface StickyAddToCartProps {
 
 export default function StickyAddToCart({ productName, price, slug, image, wooId }: StickyAddToCartProps) {
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { addItem } = useCart();
   const router = useRouter();
+  const liveRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = () => {
       setVisible(window.scrollY > 600);
     };
-    window.addEventListener("scroll", handler);
+    window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
   const handleBuyNow = () => {
-    addItem({ wooId, slug, name: productName, price, image }, 1);
-    router.push("/checkout");
+    if (loading) return;
+    setLoading(true);
+    setTimeout(() => {
+      addItem({ wooId, slug, name: productName, price, image }, 1);
+      if (liveRef.current) liveRef.current.textContent = `Proceeding to checkout with ${productName}.`;
+      router.push("/checkout");
+    }, 250);
   };
 
   return (
@@ -37,20 +44,28 @@ export default function StickyAddToCart({ productName, price, slug, image, wooId
       }`}
       aria-hidden={!visible}
     >
-      <div className="bg-[#22211E] border-t border-[#B5A48C]/30 px-5 py-4 flex items-center justify-between gap-4">
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only" ref={liveRef} />
+      <div className="bg-white/95 backdrop-blur-sm border-t border-[#E3DED3] rounded-t-3xl shadow-[0_-8px_24px_rgba(33,31,27,0.10)] px-5 py-4 flex items-center justify-between gap-4">
         {/* Product + price */}
         <div className="flex flex-col min-w-0">
-          <span className="text-sm font-semibold text-[#EDE8DE] truncate">{productName}</span>
-          <span className="font-mono text-base font-semibold text-[#4A5842]">${price}</span>
+          <span className="text-sm font-semibold text-[#211F1B] truncate">
+            {productName}
+          </span>
+          <span className="font-mono text-lg font-semibold text-[#211F1B]">
+            ${price}
+          </span>
         </div>
 
-        {/* CTA */}
+        {/* CTA — 44px+ target, loading feedback */}
         <button
           id={`sticky-cart-${slug}`}
           onClick={handleBuyNow}
-          className="bg-[#A8503E] text-[#EDE8DE] px-6 py-3 text-sm font-semibold hover:bg-[#EDE8DE] hover:text-[#22211E] transition-colors duration-300 whitespace-nowrap flex-shrink-0"
+          disabled={loading}
+          aria-busy={loading}
+          tabIndex={visible ? 0 : -1}
+          className="min-h-[44px] rounded-full bg-[#211F1B] text-white px-6 py-3 text-sm font-semibold hover:bg-black transition-colors duration-200 whitespace-nowrap flex-shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#211F1B] disabled:opacity-70"
         >
-          Buy Now
+          {loading ? "Redirecting…" : "Buy Now"}
         </button>
       </div>
     </div>

@@ -38,6 +38,8 @@ export interface Product {
   originalPrice?: number;
   image: string;
   heroImage: string;
+  /** All product photos, in display order. Falls back to a single-item array of `image` when a product has only one photo. */
+  images: string[];
   badge?: string;
   dispatchNote: string;
   problems: Problem[];

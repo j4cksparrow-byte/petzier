@@ -34,6 +34,14 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').trim();
 }
 
+/** First sentence (or first ~90 chars) of a longer block of text, for use as a card tagline. */
+function excerpt(text: string, maxLen = 90): string {
+  if (!text) return "";
+  const firstSentence = text.split(/(?<=[.!?])\s/)[0] || text;
+  const base = firstSentence.length <= maxLen ? firstSentence : firstSentence.slice(0, maxLen).trim();
+  return base.length < text.length ? `${base.replace(/[.,;:\s]+$/, "")}…` : base;
+}
+
 function mapWooToProduct(woo: WooProduct): Product {
   const matchedFallback = fallbackProducts.find((p) => p.slug === woo.slug);
   const price = parseFloat(woo.price) || matchedFallback?.price || 49;
@@ -41,7 +49,9 @@ function mapWooToProduct(woo: WooProduct): Product {
     ? parseFloat(woo.regular_price)
     : matchedFallback?.originalPrice;
 
-  const imageSrc = woo.images && woo.images.length > 0 ? woo.images[0].src : (matchedFallback?.image || "/gps-collar.jpg");
+  const wooImages = woo.images && woo.images.length > 0 ? woo.images.map((img) => img.src).filter(Boolean) : [];
+  const allImages = wooImages.length > 0 ? wooImages : (matchedFallback?.images?.length ? matchedFallback.images : [matchedFallback?.image || "/gps-collar.jpg"]);
+  const imageSrc = allImages[0];
 
   // Map WooCommerce attributes to specs table
   const wooSpecs = woo.attributes && woo.attributes.length > 0
@@ -55,12 +65,17 @@ function mapWooToProduct(woo: WooProduct): Product {
     wooId: woo.id,
     slug: woo.slug,
     name: woo.name,
-    tagline: stripHtml(woo.short_description) || matchedFallback?.tagline || "Premium pet essential",
+    tagline:
+      stripHtml(woo.short_description) ||
+      matchedFallback?.tagline ||
+      excerpt(stripHtml(woo.description)) ||
+      "Premium pet essential",
     description: stripHtml(woo.description) || matchedFallback?.description || stripHtml(woo.short_description) || "",
     price: price,
     originalPrice: originalPrice,
     image: imageSrc,
     heroImage: imageSrc,
+    images: allImages,
     badge: matchedFallback?.badge || (woo.sale_price ? "Sale" : undefined),
     dispatchNote: matchedFallback?.dispatchNote || "DISPATCHED IN 1–2 DAYS",
     problems: matchedFallback?.problems || [

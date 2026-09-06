@@ -11,6 +11,7 @@ export const products: Product[] = [
     originalPrice: 129,
     image: "/gps-collar.jpg",
     heroImage: "/hero.jpg",
+    images: ["/hero.jpg", "/gps-collar.jpg"],
     badge: "Best Seller",
     dispatchNote: "DISPATCHED IN 1–2 DAYS",
     editorialHeadline: "Peace of mind, wherever they roam.",
@@ -93,6 +94,7 @@ export const products: Product[] = [
     originalPrice: 109,
     image: "/auto-feeder.jpg",
     heroImage: "/auto-feeder.jpg",
+    images: ["/auto-feeder.jpg"],
     dispatchNote: "DISPATCHED IN 1–2 DAYS",
     editorialHeadline: "A consistent routine is the kindest thing you can give them.",
     editorialBody:
@@ -175,6 +177,7 @@ export const products: Product[] = [
     originalPrice: 59,
     image: "/laser-toy.jpg",
     heroImage: "/laser-toy.jpg",
+    images: ["/laser-toy.jpg"],
     dispatchNote: "DISPATCHED IN 1–2 DAYS",
     editorialHeadline: "The hunt instinct doesn't switch off — so why should play time?",
     editorialBody:
@@ -255,6 +258,7 @@ export const products: Product[] = [
     originalPrice: 189,
     image: "/ortho-bed.jpg",
     heroImage: "/ortho-bed.jpg",
+    images: ["/ortho-bed.jpg"],
     badge: "Vet Recommended",
     dispatchNote: "DISPATCHED IN 2–3 DAYS",
     editorialHeadline: "They spend 14 hours a day sleeping. The surface matters.",
@@ -335,6 +339,7 @@ export const products: Product[] = [
     originalPrice: 85,
     image: "/water-fountain.jpg",
     heroImage: "/water-fountain.jpg",
+    images: ["/water-fountain.jpg"],
     dispatchNote: "DISPATCHED IN 1–2 DAYS",
     editorialHeadline: "Most pets are chronically dehydrated. Running water changes that.",
     editorialBody:

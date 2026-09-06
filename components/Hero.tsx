@@ -15,22 +15,22 @@ export default function Hero() {
       />
 
       {/* Gradient overlay — warm, not generic black */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#22211E]/70 via-[#22211E]/30 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#211F1B]/75 via-[#211F1B]/35 to-transparent" />
 
       {/* Content */}
       <div className="absolute inset-0 flex items-end pb-20 md:items-center md:pb-0">
         <div className="max-w-7xl mx-auto px-6 w-full">
           <div className="max-w-xl">
             {/* Stamp label */}
-            <div className="inline-flex items-center gap-2 border border-[#B5A48C]/60 px-3 py-1.5 mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4A5842]" />
-              <span className="font-mono text-[0.65rem] tracking-[0.15em] text-[#EDE8DE]/90 uppercase">
+            <div className="inline-flex items-center gap-2 border border-white/30 px-3 py-1.5 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              <span className="font-mono text-[0.65rem] tracking-[0.15em] text-white/90 uppercase">
                 Dispatched from Melbourne — 1–2 days
               </span>
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl md:text-6xl font-extrabold text-[#EDE8DE] leading-[1.08] tracking-tight mb-5">
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.08] tracking-tight mb-5">
               Know where
               <br />
               they are,
@@ -39,23 +39,23 @@ export default function Hero() {
             </h1>
 
             {/* Subhead */}
-            <p className="text-base md:text-lg text-[#EDE8DE]/80 leading-relaxed mb-8 max-w-sm">
+            <p className="text-base md:text-lg text-white/80 leading-relaxed mb-8 max-w-sm">
               Vet-reviewed pet tech built to last. Free shipping Australia-wide.
             </p>
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href="#products"
+                href="/products"
                 id="hero-cta-primary"
-                className="inline-flex items-center justify-center bg-[#4A5842] text-[#EDE8DE] px-8 py-4 text-sm font-semibold hover:bg-[#22211E] transition-colors duration-300"
+                className="inline-flex items-center justify-center bg-white text-[#211F1B] px-8 py-4 text-sm font-semibold hover:bg-white/90 transition-colors duration-300"
               >
                 Shop All Products
               </Link>
               <Link
                 href="/products/smart-gps-collar"
                 id="hero-cta-secondary"
-                className="inline-flex items-center justify-center border border-[#EDE8DE]/50 text-[#EDE8DE] px-8 py-4 text-sm font-medium hover:bg-[#EDE8DE]/10 transition-colors duration-300"
+                className="inline-flex items-center justify-center border border-white/50 text-white px-8 py-4 text-sm font-medium hover:bg-white/10 transition-colors duration-300"
               >
                 See GPS Collar →
               </Link>
@@ -66,10 +66,10 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 right-8 hidden md:flex flex-col items-center gap-2 opacity-50">
-        <span className="font-mono text-[0.6rem] tracking-[0.2em] text-[#EDE8DE] uppercase rotate-90 origin-center">
+        <span className="font-mono text-[0.6rem] tracking-[0.2em] text-white uppercase rotate-90 origin-center">
           Scroll
         </span>
-        <div className="w-px h-8 bg-[#EDE8DE]/40" />
+        <div className="w-px h-8 bg-white/40" />
       </div>
     </section>
   );

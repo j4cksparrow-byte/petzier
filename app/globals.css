@@ -1,14 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-stone: #EDE8DE;
-  --color-ink: #22211E;
-  --color-moss: #4A5842;
-  --color-taupe: #B5A48C;
-  --color-clay: #A8503E;
+  /* White / off-white surface system — no color accents, only neutrals. */
+  --color-white: #FFFFFF;
+  --color-linen: #FCFAF6;
+  --color-stone: #F1ECE3;
+  --color-ink: #211F1B;
+  --color-mist: #E3DED3;
 
   --font-sans: var(--font-public-sans), system-ui, sans-serif;
   --font-mono: var(--font-ibm-plex-mono), monospace;
+  --font-serif: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
   --font-display: var(--font-public-sans), system-ui, sans-serif;
 }
 
@@ -18,8 +20,8 @@
   }
 
   body {
-    background-color: #EDE8DE;
-    color: #22211E;
+    background-color: #FFFFFF;
+    color: #211F1B;
     font-family: var(--font-sans);
     font-weight: 500;
     -webkit-font-smoothing: antialiased;
@@ -28,6 +30,38 @@
 
   * {
     box-sizing: border-box;
+  }
+
+  ::selection {
+    background-color: #211F1B;
+    color: #FCFAF6;
+  }
+
+  /* Slim, neutral scrollbar — Firefox */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: #E3DED3 transparent;
+  }
+
+  /* Slim, neutral scrollbar — WebKit/Blink */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #E3DED3;
+    border-radius: 999px;
+    border: 2px solid #FFFFFF;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #211F1B;
+    opacity: 0.4;
   }
 }
 
@@ -57,8 +91,18 @@
   }
 
   .hairline {
-    border-color: #B5A48C;
+    border-color: #E3DED3;
     border-width: 1px;
+  }
+
+  /* Premium surface elevation — soft, neutral shadows (never pure black) so
+     cards feel lifted rather than boxed. */
+  .shadow-card {
+    box-shadow: 0 1px 2px rgba(33, 31, 27, 0.03), 0 14px 32px -16px rgba(33, 31, 27, 0.10);
+  }
+
+  .shadow-card-hover {
+    box-shadow: 0 4px 10px rgba(33, 31, 27, 0.05), 0 28px 56px -18px rgba(33, 31, 27, 0.16);
   }
 }
 

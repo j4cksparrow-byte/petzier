@@ -9,15 +9,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        stone: "#EDE8DE",
-        ink: "#22211E",
-        moss: "#4A5842",
-        taupe: "#B5A48C",
-        clay: "#A8503E",
+        white: "#FFFFFF",
+        linen: "#FCFAF6",
+        stone: "#F1ECE3",
+        ink: "#211F1B",
+        mist: "#E3DED3",
       },
       fontFamily: {
         sans: ["var(--font-public-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-ibm-plex-mono)", "monospace"],
+        serif: ["var(--font-fraunces)", "Georgia", "serif"],
         display: ["var(--font-general-sans)", "var(--font-public-sans)", "sans-serif"],
       },
       letterSpacing: {

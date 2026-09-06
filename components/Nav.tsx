@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingCart, Menu, X, PawPrint } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 
 export default function Nav() {
@@ -20,7 +20,7 @@ export default function Nav() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-[#EDE8DE]/95 backdrop-blur-sm border-b border-[#B5A48C]"
+          ? "bg-white/95 backdrop-blur-sm border-b border-[#E3DED3]"
           : "bg-transparent"
       }`}
     >
@@ -28,35 +28,36 @@ export default function Nav() {
         {/* Logo */}
         <Link
           href="/"
-          className="font-mono text-sm font-semibold tracking-[0.18em] uppercase text-[#22211E] hover:text-[#4A5842] transition-colors"
+          className="flex items-center gap-2 font-mono text-sm font-semibold tracking-[0.18em] uppercase text-[#211F1B] hover:text-[#211F1B]/70 transition-colors"
           aria-label="Petzier home"
         >
+          <PawPrint size={16} strokeWidth={2} aria-hidden="true" />
           PETZIER
         </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
           <Link
-            href="/#products"
-            className="text-sm font-medium text-[#22211E]/70 hover:text-[#22211E] transition-colors"
+            href="/products"
+            className="text-sm font-medium text-[#211F1B]/70 hover:text-[#211F1B] transition-colors"
           >
             Products
           </Link>
           <Link
             href="/#why-different"
-            className="text-sm font-medium text-[#22211E]/70 hover:text-[#22211E] transition-colors"
+            className="text-sm font-medium text-[#211F1B]/70 hover:text-[#211F1B] transition-colors"
           >
             Why Petzier
           </Link>
           <Link
             href="/#reviews"
-            className="text-sm font-medium text-[#22211E]/70 hover:text-[#22211E] transition-colors"
+            className="text-sm font-medium text-[#211F1B]/70 hover:text-[#211F1B] transition-colors"
           >
             Reviews
           </Link>
           <button
             onClick={openCart}
-            className="font-mono text-xs tracking-stamp bg-[#4A5842] text-[#EDE8DE] px-4 py-2 hover:bg-[#22211E] transition-colors"
+            className="font-mono text-xs tracking-stamp bg-[#211F1B] text-white px-4 py-2 hover:bg-black transition-colors"
             aria-label="Open cart"
           >
             CART ({totalItems})
@@ -68,11 +69,11 @@ export default function Nav() {
           <button
             onClick={openCart}
             aria-label="Open cart"
-            className="relative text-[#22211E] hover:text-[#4A5842] transition-colors"
+            className="relative text-[#211F1B] hover:text-[#211F1B]/70 transition-colors"
           >
             <ShoppingCart size={20} />
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-[#A8503E] text-[#EDE8DE] text-[10px] font-mono font-semibold rounded-full w-4 h-4 flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 bg-[#211F1B] text-white text-[10px] font-mono font-semibold rounded-full w-4 h-4 flex items-center justify-center">
                 {totalItems > 9 ? "9+" : totalItems}
               </span>
             )}
@@ -80,7 +81,7 @@ export default function Nav() {
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
-            className="text-[#22211E]"
+            className="text-[#211F1B]"
           >
             {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -89,9 +90,9 @@ export default function Nav() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-[#EDE8DE] border-t border-[#B5A48C] px-6 py-6 flex flex-col gap-5">
+        <div className="md:hidden bg-white border-t border-[#E3DED3] px-6 py-6 flex flex-col gap-5">
           {[
-            ["/#products", "Products"],
+            ["/products", "Products"],
             ["/#why-different", "Why Petzier"],
             ["/#reviews", "Reviews"],
           ].map(([href, label]) => (
@@ -99,7 +100,7 @@ export default function Nav() {
               key={href}
               href={href}
               onClick={() => setMenuOpen(false)}
-              className="text-base font-medium text-[#22211E] border-b border-[#B5A48C]/40 pb-4"
+              className="text-base font-medium text-[#211F1B] border-b border-[#E3DED3] pb-4"
             >
               {label}
             </Link>
@@ -109,7 +110,7 @@ export default function Nav() {
               setMenuOpen(false);
               openCart();
             }}
-            className="font-mono text-xs tracking-stamp bg-[#4A5842] text-[#EDE8DE] px-4 py-3 text-center hover:bg-[#22211E] transition-colors"
+            className="font-mono text-xs tracking-stamp bg-[#211F1B] text-white px-4 py-3 text-center hover:bg-black transition-colors"
           >
             CART ({totalItems})
           </button>

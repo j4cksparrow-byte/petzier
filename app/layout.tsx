@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Public_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Public_Sans, IBM_Plex_Mono, Fraunces } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import CartDrawer from "@/components/CartDrawer";
@@ -16,6 +16,18 @@ const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-ibm-plex-mono",
+  display: "swap",
+});
+
+// Display serif for premium editorial headlines — deliberately warm and
+// slightly soft (Fraunces' optical-size axis) rather than a classic
+// high-contrast didone, so it reads distinctly from generic "premium serif"
+// picks.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-fraunces",
   display: "swap",
 });
 
@@ -37,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${publicSans.variable} ${ibmPlexMono.variable}`}>
+    <html lang="en" className={`${publicSans.variable} ${ibmPlexMono.variable} ${fraunces.variable}`}>
       <body className="bg-stone text-ink antialiased">
         <CartProvider>
           <Nav />
