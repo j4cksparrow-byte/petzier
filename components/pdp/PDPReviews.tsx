@@ -1,31 +1,15 @@
 import type { Review } from "@/lib/types";
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex gap-0.5" role="img" aria-label={`${rating} out of 5 stars`}>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg
-          key={i}
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill={i < rating ? "#211F1B" : "none"}
-          stroke={i < rating ? "#211F1B" : "#E3DED3"}
-          strokeWidth="1"
-          aria-hidden="true"
-        >
-          <polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" />
-        </svg>
-      ))}
-    </div>
-  );
-}
+import StarRating from "./StarRating";
 
 export default function PDPReviews({ reviews, productName }: { reviews: Review[]; productName: string }) {
   const avg = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
 
   return (
-    <section className="py-20 md:py-28 bg-[#F1ECE3]" aria-label={`Reviews for ${productName}`}>
+    <section
+      id="reviews"
+      className="py-20 md:py-28 bg-[#F1ECE3] scroll-mt-24"
+      aria-label={`Reviews for ${productName}`}
+    >
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="pdp-reveal flex items-end justify-between mb-12 flex-wrap gap-4">

@@ -6,6 +6,7 @@ import MaterialBreakdown from "@/components/pdp/MaterialBreakdown";
 import WhatInBox from "@/components/pdp/WhatInBox";
 import SpecsTable from "@/components/pdp/SpecsTable";
 import PDPReviews from "@/components/pdp/PDPReviews";
+import RelatedProducts from "@/components/pdp/RelatedProducts";
 import StickyAddToCart from "@/components/pdp/StickyAddToCart";
 import PdpMotion from "@/components/pdp/PdpMotion";
 import Footer from "@/components/Footer";
@@ -32,7 +33,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const product = await fetchWooProductBySlug(slug);
+  const [product, allProducts] = await Promise.all([
+    fetchWooProductBySlug(slug),
+    fetchWooProducts(),
+  ]);
   if (!product) notFound();
 
   return (
@@ -49,6 +53,7 @@ export default async function ProductPage({ params }: Props) {
       <WhatInBox items={product.boxItems} />
       <SpecsTable specs={product.specs} productName={product.name} />
       <PDPReviews reviews={product.reviews} productName={product.name} />
+      <RelatedProducts products={allProducts} currentSlug={product.slug} />
       <Footer />
       <StickyAddToCart
         productName={product.name}
